@@ -1,5 +1,8 @@
 <?php  /* -*- c -*- */
 
+  /* v.1.0  2004  Implements RFC 2011
+   */
+
     /** mib-2.IP **/
 
     /* .1.3.6.1.2.1 mib-2
@@ -9,7 +12,7 @@
 
     /* .1.3.6.1.2.1 mib-2
      *   .4 ip
-     *     .1  ipForwarding : is this device an IP router
+     *     .1  ipForwarding : is this device an IP router ?
      *     .2  ipDefaultTTL
      *     .3  ipInReceives
      *     .4  ipInHdrErrors
@@ -28,18 +31,18 @@
      *     .17 ipFragOKs
      *     .18 ipFragFails
      *     .19 ipFragCreates
-     *     .20 ipAddrTable
+     *     .20 ipAddrTable : implemented as get_ipAddrTable()
      *     .21 ipRouteTable : obsolete
-     *     .22 ipNetToMediaTable
+     *     .22 ipNetToMediaTable : implemented as get_ipNetToMediaTable()
      *     .23 ipRoutingDiscards
      *
      * FUNCTION
      * get_ip ($device_name, $community, &$device)
      *
-     * retrieves objects 1 through 19 and 23 (scalars), calls
+     * Retrieves objects 1 through 19 and 23 (scalars), calls
      * get_ipAddrTable() and get_ipNetToMediaTable() (tables).
      *
-     * populates $device["ip"]
+     * Populates $device["ip"]
      **/
 
 function get_ip ($device_name, $community, &$device)
@@ -48,7 +51,7 @@ function get_ip ($device_name, $community, &$device)
     snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
     snmp_set_quick_print(TRUE);
 
-        /* retrieve .ip scalars */
+        /* Retrieve .ip scalars */
 
     $base_oid = "1.3.6.1.2.1.4";
 
@@ -79,15 +82,12 @@ function get_ip ($device_name, $community, &$device)
         $oid  = $base_oid.".$i.0";
         $data = @snmpget ($device_name, $community, $oid);
 
-        if (empty($data))
-        {
-            continue;
-        }
+        if (empty($data)) {  continue;  }
         
         $device["ip"][$object] = $data;
     }
 
-        /* retrieve .ip tables */
+        /* Retrieve .ip tables */
 
     get_ipAddrTable($device_name, $community, $device);
     get_ipNetToMediaTable($device_name, $community, $device);
@@ -108,8 +108,9 @@ function get_ip ($device_name, $community, &$device)
      * FUNCTION
      * get_ipAddrTable ($device_name, $community, &$device, $ip="")
      *
-     * populates $device["ip"]["ipAddrTable"],
-     * adds pointer from $device["interfaces"][$value]["ipAddrTable"][] =>
+     * Populates $device["ip"]["ipAddrTable"],
+     * 
+     * Adds pointer from $device["interfaces"][$value]["ipAddrTable"][] =>
      *     &$device["ip"]["ipAddrTable"][$IP];
      **/
 
@@ -138,7 +139,7 @@ function get_ipAddrTable ($device_name, $community, &$device, $ip="")
              * RFC1213-MIB::ipAdEntBcastAddr.172.20.128.139 = INTEGER: 1
              * RFC1213-MIB::ipAdEntReasmMaxSize.172.20.128.139 = INTEGER: 18024
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => ipAdEntAddr.10.64.110.1
@@ -150,7 +151,7 @@ function get_ipAddrTable ($device_name, $community, &$device, $ip="")
              * $matches[1] is object, $matches[2] is an IP address
              * (with a leading '.')
              * 
-             * strip the leading '.' to use IP as index
+             * Strip the leading '.' to use IP as index
              */
         
         $IP = substr_replace($matches[2], "", 0, 1);  // remove leading '.'
@@ -177,10 +178,10 @@ function get_ipAddrTable ($device_name, $community, &$device, $ip="")
      * INDEX  { ipNetToMediaIfIndex,  ipNetToMediaNetAddress }
      *
      * FUNCTION
-     * get_ipAddrTable ($device_name, $community, &$device, $if="")
+     * get_ipNetToMediaTable ($device_name, $community, &$device, $if="")
      *
-     * populates $device["ip"]["ipAddrTable"]
-     * populates $device["interfaces"][$ifIndex]["ipNetToMediaTable"]
+     * Populates $device["ip"]["ipNetToMediaTable"]
+     * Populates $device["interfaces"][$ifIndex]["ipNetToMediaTable"]
      **/
 
 function get_ipNetToMediaTable ($device_name, 
