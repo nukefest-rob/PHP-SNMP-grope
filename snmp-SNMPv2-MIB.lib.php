@@ -67,11 +67,9 @@ function get_system ($device_name, $community, &$device)
                  *
                  * $matches[1] is the oid, $matches[2] is the instance_id.
                  *
-                 * sysObjectID and sysServices require special handling.
+                 * sysServices require special handling.
                  **/
             
-
-                /* The majority of the system tree is simple scalars */
 
             if ($matches[1] !== "sysServices")
             {
