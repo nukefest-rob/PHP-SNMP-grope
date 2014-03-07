@@ -10,6 +10,9 @@
   /* v.1.0  2007  Implements CISCO-PORT-SECURITY-MIB
    */
 
+  /* http://www.cisco.com/c/en/us/tech/ip/simple-network-management-protocol-snmp/index.html
+   */
+
     /* .1.3.6.1.4.1.9.9
      *   .315 ciscoPortSecurityMIB
      *     .0 ciscoPortSecurityMIBNotifs

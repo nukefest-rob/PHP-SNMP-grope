@@ -11,6 +11,9 @@
   /* v.1.0  2007  Implements CISCO-VLAN-MEMBERSHIP-MIB
    */
 
+  /* http://www.cisco.com/c/en/us/tech/ip/simple-network-management-protocol-snmp/index.html
+   */
+
   /* This MIB manages VLAN membership assignments of non-trunk
    * bridge ports and VQP/VMPS operations.  some objects are
    * voice-specific and a lot of the mib is devoted to conformance.
@@ -88,6 +91,12 @@ function get_vmVmps ($device_name, $community, &$device)
      *
      * FUNCTION
      * get_vmVmpsVQPVersion ($device_name, $community, &$device)
+     *
+     * "The VLAN Query Protocol (VQP) version supported on the
+     *  device. VQP is the protocol used to query VLAN Membership Policy
+     *  Server (VMPS) for VLAN membership assignments of dynamic VLAN
+     *  ports.  A VMPS provides VLAN membership policy assignments based
+     *  on the content of the packets received on a port. "
      *
      * sets $device["VQP"]["vmVmpsVQPVersion"]
      */

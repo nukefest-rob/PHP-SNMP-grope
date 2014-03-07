@@ -25,6 +25,8 @@
   /* NOTE: my environment is relatively simple, I can't test most of
    * this MIB.  I've only implemented those parts that I can test.
    *  - sep, 2007 rob
+   *
+   * http://www.cisco.com/c/en/us/tech/ip/simple-network-management-protocol-snmp/index.html
    **/
 
 
@@ -57,7 +59,20 @@
    *      .17 vtpVlanTypeExt
    *      .18 vtpVlanIfIndex
    *
-   * no aspect of this branch is implemented at this time.
+   * "This table contains information on the VLANs which currently
+   *  exist.  The creation, deletion or modification of entries occurs
+   *  through: a) the receipt of VTP messages in VTP Clients and in VTP
+   *  Servers, or, b) in VTP Servers (or in VTP transparent mode),
+   *  through management operations acting upon entries in the
+   *  vtpVlanEditTable and then issuing an 'apply' command via the
+   *  vtpVlanEditOperation object."
+   * 
+   * Note: vtpVlanIfIndex.1.124 = 234
+   *          .1   == VTP management domain
+   *          .124 == VLAN
+   *          .234 == IfIndex
+   *
+   * No aspect of this branch is implemented at this time.
    **/   
 
 
@@ -95,13 +110,13 @@
    *      .28 vlanTrunkPortVlansRcvJoined4k   : n/i
    *      .29 vlanTrunkPortDot1qTunnel : n/i
    *
-   * INDEX: "trunk port" - an ifIndex that is "trunking", an
+   * INDEX: "trunk port" - An ifIndex that is "trunking", an
    *        interface used to connect a network device to another
    *        network device (eg, router or switch) over which
-   *        communications are encapsulated in 802.1q or ISL.  if a
+   *        communications are encapsulated in 802.1q or ISL.  If a
    *        port (ifIndex) is not "trunking", none of these objects
    *        will be relevant, though they might contain garbage
-   *        data.  test vlanTrunkPortDynamicStatus to find out if a
+   *        data.  Test vlanTrunkPortDynamicStatus to find out if a
    *        port is trunking.
    *
    **/
@@ -113,17 +128,17 @@
    *
    * INDEX: trunk port (ifIndex)
    *
-   * a list of the vlans between 1 and 1023 that are enabled on a
+   * A list of the vlans between 1 and 1023 that are enabled on a
    * trunk port
    *
    * FUNCTION
    * get_vlanTrunkPortVlansEnabled ($device_name, $community, &$device, 
    *                                $if="")
    *
-   * populates $device["interfaces"][$ifIndex]["vlansEnabled"]
+   * Populates $device["interfaces"][$ifIndex]["vlansEnabled"]
    *
-   * WARNING: call get_vlanTrunkPortEncapsulationOperType() first !
-   * the value of this object cannot be properly evaluated without
+   * WARNING: Call get_vlanTrunkPortEncapsulationOperType() first !
+   * The value of this object cannot be properly evaluated without
    * knowing the vlanTrunkPortEncapsulationOperType for an
    * interface.
    **/   
@@ -169,7 +184,7 @@ function get_vlanTrunkPortVlansEnabled ($device_name,
              * 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
              * 02 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 48
@@ -177,16 +192,16 @@ function get_vlanTrunkPortVlansEnabled ($device_name,
              *
              * $matches[0] is ifIndex, $val is a bit map of vlans.
              *
-             * in this example, the first value is representative of a
+             * In this example, the first value is representative of a
              * non-trunking port (meaningless) and the second is
              * representative of a trunking port (real data).
              *
-             * the value returned is type "octet string", a hex string.
-             * it can be broken into bytes by unpacking the string as
+             * The value returned is type "octet string", a hex string.
+             * It can be broken into bytes by unpacking the string as
              * unsigned chars, resulting in an array of 128 1-byte values
              * with the initial index being 1 (rather than 0).
              * 
-             * subtract 1 from the array index and multiply the result by 8
+             * Subtract 1 from the array index and multiply the result by 8
              * to get the vlan# represented by the left-most bit in the byte.
              * then mask:
              *
@@ -196,11 +211,11 @@ function get_vlanTrunkPortVlansEnabled ($device_name,
 
         $ifIndex = $matches[0];
         
-            /* pointer makes reading the code easier */
+            /* Pointer makes reading the code easier */
 
         $if = &$device["interfaces"][$ifIndex];
         
-            /* check interface encapsulation.  if not set, $val is
+            /* Check interface encapsulation.  If not set, $val is
              * both irrelevant and probably full of random data.
              **/
 
@@ -240,15 +255,15 @@ function get_vlanTrunkPortVlansEnabled ($device_name,
      *
      * INDEX: trunk port (ifIndex)
      *
-     * the vlanIndex of the vlan of native frames (raw,
+     * The vlanIndex of the vlan of native frames (raw,
      * unencapsulated) sent/recv on a port, if native frames are
-     * allowed.  if they aren't, the value will be zero.
+     * allowed.  If they aren't, the value will be zero.
      *
      * FUNCTION
      * get_vlanTrunkPortNativeVlan ($device_name, $community, &$device, 
      *                              $if="")
      *
-     * populates $device["interfaces"][$ifIndex]["nativeVlan"]
+     * Populates $device["interfaces"][$ifIndex]["nativeVlan"]
      **/   
 
 function get_vlanTrunkPortNativeVlan ($device_name, 
@@ -276,7 +291,7 @@ function get_vlanTrunkPortNativeVlan ($device_name,
              *
              * ifIndex = $matches[0];
              *
-             * note: no need to check trunking status of the port 
+             * Note: no need to check trunking status of the port 
              **/
         
         if (is_numeric($val) && ($val !== "0"))
@@ -300,14 +315,14 @@ function get_vlanTrunkPortNativeVlan ($device_name,
      *
      * INDEX: trunk port (ifIndex)
      *
-     * on devices that permit dynamic determination of trunking between
+     * On devices that permit dynamic determination of trunking between
      * two devices, this object reports the operator-mandated behavior:
      *
      * FUNCTION
      * get_vlanTrunkPortDynamicState ($device_name, $community, &$device, 
      *                                $if="")
      *
-     * sets $device["interfaces"][$ifIndex]["vlanTrunkPortDynamicState"]
+     * Sets $device["interfaces"][$ifIndex]["vlanTrunkPortDynamicState"]
      **/   
 
 function get_vlanTrunkPortDynamicState ($device_name, 
@@ -350,14 +365,14 @@ function get_vlanTrunkPortDynamicState ($device_name,
      *
      * INDEX: trunk port (ifIndex)
      *
-     * indicates whether a port is acting as a trunk or not, based on
+     * Indicates whether a port is acting as a trunk or not, based on
      * vlanTrunkPortDynamicState and ifOperStatus
      *
      * FUNCTION
      * get_vlanTrunkPortDynamicStatus ($device_name, $community, &$device, 
      *                                 $if="")
      *
-     * sets $device["interfaces"][$ifIndex]["vlanTrunkPortDynamicStatus"]
+     * Sets $device["interfaces"][$ifIndex]["vlanTrunkPortDynamicStatus"]
      **/   
 
 function get_vlanTrunkPortDynamicStatus ($device_name, 
@@ -406,7 +421,7 @@ function get_vlanTrunkPortDynamicStatus ($device_name,
      *
      * INDEX: trunk port (ifIndex)
      *
-     * indicates the type of encapsulation in use on the port
+     * Indicates the type of encapsulation in use on the port
      *
      * FUNCTION
      * get_vlanTrunkPortEncapsulationOperType ($device_name, 
@@ -414,7 +429,7 @@ function get_vlanTrunkPortDynamicStatus ($device_name,
      *                                         &$device, 
      *                                         $if="")
      *
-     * sets 
+     * Sets 
      * $device["interfaces"][$ifIndex]["vlanTrunkPortEncapsulationOperType"]
      **/   
 
@@ -457,7 +472,7 @@ function get_vlanTrunkPortEncapsulationOperType ($device_name,
      *
      * INDEX: trunk port (ifIndex)
      *
-     * a list of the vlans between 1024 and 2047 that are enabled on a
+     * A list of the vlans between 1024 and 2047 that are enabled on a
      * trunk port
      *
      * FUNCTION
@@ -466,10 +481,10 @@ function get_vlanTrunkPortEncapsulationOperType ($device_name,
      *                                  &$device, 
      *                                  $if="")
      *
-     * populates $device["interfaces"][$ifIndex]["vlansEnabled"]
+     * Populates $device["interfaces"][$ifIndex]["vlansEnabled"]
      *
-     * WARNING: call get_vlanTrunkPortEncapsulationOperType() first !
-     * the value of this object cannot be properly evaluated without
+     * WARNING: Call get_vlanTrunkPortEncapsulationOperType() first !
+     * The value of this object cannot be properly evaluated without
      * knowing the vlanTrunkPortEncapsulationOperType for an
      * interface.
      **/   
@@ -507,7 +522,7 @@ function get_vlanTrunkPortVlansEnabled2k ($device_name,
              * FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
              * CISCO-VTP-MIB::vlanTrunkPortVlansEnabled2k.49 = ""
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 48
@@ -515,18 +530,18 @@ function get_vlanTrunkPortVlansEnabled2k ($device_name,
              *
              * ifIndex = $matches[0], $val is a bitmap of vlans.
              *
-             * in the example shown, port 48 is NOT trunking while
-             * port 49 IS trunking.  the object for 48 contains junk
+             * In the example shown, port 48 is NOT trunking while
+             * port 49 IS trunking.  The object for 48 contains junk
              * data, the object for 49 reports accurately that there
              * are no vlans between 1024 and 2047 being trunked.
              *
-             * the value returned is type "octet string", a hex string.
-             * it can be broken into bytes by unpacking the string as
+             * The value returned is type "octet string", a hex string.
+             * It can be broken into bytes by unpacking the string as
              * unsigned chars, resulting in an array of 128 1-byte values
              * with the initial index being 1 rather than the usual 0.
              * 
-             * subtract 1 from the array index and multiply the result by 8
-             * to get the vlan# represented by the left-most bit in the byte.
+             * Subtract 1 from the array index and multiply the result by 8
+             * To get the vlan# represented by the left-most bit in the byte.
              * then mask
              *
              * ( (array index - 1) * 8 ) + the position of each 1 bit
@@ -536,11 +551,11 @@ function get_vlanTrunkPortVlansEnabled2k ($device_name,
 
         $ifIndex = $matches[0];
         
-            /* pointer makes reading the code easier */
+            /* Pointer makes reading the code easier */
 
         $if = &$device["interfaces"][$ifIndex];
         
-            /* check interface encapsulation.  if not set, $val is
+            /* Check interface encapsulation.  if not set, $val is
              * both irrelevant and probably full of random data.
              **/
 
@@ -580,7 +595,7 @@ function get_vlanTrunkPortVlansEnabled2k ($device_name,
      *
      * INDEX: trunk port (ifIndex)
      *
-     * a list of the vlans between 2048 and 3071 that are enabled on a
+     * A list of the vlans between 2048 and 3071 that are enabled on a
      * trunk port
      *
      * FUNCTION
@@ -589,10 +604,10 @@ function get_vlanTrunkPortVlansEnabled2k ($device_name,
      *                                  &$device, 
      *                                  $if="")
      *
-     * populates $device["interfaces"][$ifIndex]["vlansEnabled"]
+     * Populates $device["interfaces"][$ifIndex]["vlansEnabled"]
      *
-     * WARNING: call get_vlanTrunkPortEncapsulationOperType() first !
-     * the value of this object cannot be properly evaluated without
+     * WARNING: Call get_vlanTrunkPortEncapsulationOperType() first !
+     * The value of this object cannot be properly evaluated without
      * knowing the vlanTrunkPortEncapsulationOperType for an
      * interface.
      **/   
@@ -630,7 +645,7 @@ function get_vlanTrunkPortVlansEnabled3k ($device_name,
              * FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
              * CISCO-VTP-MIB::vlanTrunkPortVlansEnabled3k.49 = ""
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 48
@@ -638,32 +653,32 @@ function get_vlanTrunkPortVlansEnabled3k ($device_name,
              *
              * ifIndex = $matches[0], $val is a bitmap of vlans.
              *
-             * in the example shown, port 48 is NOT trunking while
-             * port 49 IS trunking.  the object for 48 contains junk
+             * In the example shown, port 48 is NOT trunking while
+             * port 49 IS trunking.  The object for 48 contains junk
              * data, the object for 49 reports accurately that there
              * are no vlans between 2048 and 3071 being trunked.
              *
-             * the value returned is type "octet string", a hex string.
-             * it can be broken into bytes by unpacking the string as
+             * The value returned is type "octet string", a hex string.
+             * It can be broken into bytes by unpacking the string as
              * unsigned chars, resulting in an array of 128 1-byte values
              * with the initial index being 1 rather than the usual 0.
              * 
-             * subtract 1 from the array index and multiply the result by 8
+             * Subtract 1 from the array index and multiply the result by 8
              * to get the vlan# represented by the left-most bit in the byte.
-             * then mask
+             * Then mask
              *
              * ( (array index - 1) * 8 ) + the position of each 1 bit
-             * in the byte + 2048 (the starting offset for Enabled2k)
+             * in the byte + 2048 (the starting offset for Enabled3k)
              * gives the value of a vlan.
              **/
 
         $ifIndex = $matches[0];
         
-            /* pointer makes reading the code easier */
+            /* Pointer makes reading the code easier */
 
         $if = &$device["interfaces"][$ifIndex];
         
-            /* check interface encapsulation.  if not set, $val is
+            /* Check interface encapsulation.  If not set, $val is
              * both irrelevant and probably full of random data.
              **/
 
@@ -703,7 +718,7 @@ function get_vlanTrunkPortVlansEnabled3k ($device_name,
      *
      * INDEX: trunk port (ifIndex)
      *
-     * a list of the vlans between 3072 and 4095 that are enabled on a
+     * A list of the vlans between 3072 and 4095 that are enabled on a
      * trunk port
      *
      * FUNCTION
@@ -712,10 +727,10 @@ function get_vlanTrunkPortVlansEnabled3k ($device_name,
      *                                  &$device, 
      *                                  $if="")
      *
-     * populates $device["interfaces"][$ifIndex]["vlansEnabled"]
+     * Populates $device["interfaces"][$ifIndex]["vlansEnabled"]
      *
-     * WARNING: call get_vlanTrunkPortEncapsulationOperType() first !
-     * the value of this object cannot be properly evaluated without
+     * WARNING: Call get_vlanTrunkPortEncapsulationOperType() first !
+     * The value of this object cannot be properly evaluated without
      * knowing the vlanTrunkPortEncapsulationOperType for an
      * interface.
      **/   
@@ -752,7 +767,7 @@ function get_vlanTrunkPortVlansEnabled4k ($device_name,
              * FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
              * CISCO-VTP-MIB::vlanTrunkPortVlansEnabled4k.49 = ""
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 48
@@ -761,32 +776,32 @@ function get_vlanTrunkPortVlansEnabled4k ($device_name,
              * ifIndex = $matches[0], $val is a bitmap of vlans.
              *
              *
-             * in the example shown, port 48 is NOT trunking while
-             * port 49 IS trunking.  the object for 48 contains junk
+             * In the example shown, port 48 is NOT trunking while
+             * port 49 IS trunking.  The object for 48 contains junk
              * data, the object for 49 reports accurately that there
              * are no vlans between 3072 and 4095 being trunked.
              *
-             * the value returned is type "octet string", a hex string.
-             * it can be broken into bytes by unpacking the string as
+             * The value returned is type "octet string", a hex string.
+             * It can be broken into bytes by unpacking the string as
              * unsigned chars, resulting in an array of 128 1-byte values
              * with the initial index being 1 rather than the usual 0.
              * 
-             * subtract 1 from the array index and multiply the result by 8
+             * Subtract 1 from the array index and multiply the result by 8
              * to get the vlan# represented by the left-most bit in the byte.
-             * then mask
+             * Then mask
              *
              * ( (array index - 1) * 8 ) + the position of each 1 bit
-             * in the byte + 3072 (the starting offset for Enabled3k)
+             * in the byte + 3072 (the starting offset for Enabled4k)
              * gives the value of a vlan.
              **/
 
         $ifIndex = $matches[0];
         
-            /* pointer makes reading the code easier */
+            /* Pointer makes reading the code easier */
 
         $if = &$device["interfaces"][$ifIndex];
         
-            /* check interface encapsulation.  if not set, $val is
+            /* Check interface encapsulation.  If not set, $val is
              * both irrelevant and probably full of random data.
              **/
 

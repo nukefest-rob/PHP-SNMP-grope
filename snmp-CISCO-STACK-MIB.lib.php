@@ -10,6 +10,9 @@
   /* v.1.0  2007  Implements CISCO-STACK-MIB
    */
 
+  /* http://www.cisco.com/c/en/us/tech/ip/simple-network-management-protocol-snmp/index.html
+   */
+
   /* Quoth the mib: "This MIB provides configuration and runtime
    * status for -- chassis, modules, ports, etc. on the Catalyst
    * systems.
