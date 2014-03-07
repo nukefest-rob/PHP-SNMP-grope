@@ -1,122 +1,132 @@
 <?php /* -*- c -*- */
 
-    /* objects in this MIB apply only to "trunking" ports.  cisco
-     * describes "trunk" ports as those used to connect networking
-     * devices (switch<->switch, switch<->router, etc) and whose
-     * encapsulation is either 802.1q or ISL.  
-     *
-     * get vlanTrunkPortDynamicStatus before doing any other
-     * retrievals.  if a trunk's status is "notTrunking", the objects'
-     * values are meaningless and processing can be skipped.  use
-     * the cisco-vlan-membership-mib to get vlan info about non-
-     * trunking ports.
-     **/
+  /*
+   * Copyright (c) 2014 Robin Garner (robin@nukefest.org)
+   * All rights reserved.
+   *
+   * License: GPL v.3
+   */
 
-    /* NOTE: my environment is relatively simple, i can't test most of
-     * this MIB.  i've only implemented those parts that i can test.
-     *  - sep, 2007 rob
-     **/
+  /* v.1.0  2007  Implements CISCO-VTP-MIB-V1SMI
+   */
 
+  /* Objects in this MIB apply only to "trunking" ports.  Cisco
+   * describes "trunk" ports as those used to connect networking
+   * devices (switch<->switch, switch<->router, etc) and whose
+   * encapsulation is either 802.1q or ISL.  
+   *
+   * Get vlanTrunkPortDynamicStatus before doing any other retrievals.
+   * If a trunk's status is "notTrunking", the objects' values are
+   * meaningless and processing can be skipped.  Use the
+   * cisco-vlan-membership-mib to get vlan info about non- trunking
+   * ports.
+   **/
 
-    /* .1.3.6.1.4.1.9.9
-     *   .46 ciscoVtpMIB
-     *     .1 vtpMIBObjects
-     *       .3 vlanInfo : n/i - no test avail.
-     *       .6 vlanTrunkPorts 
-     **/
-
-    /* .1.3.6.1.4.1.9.9.46.1.3 vlanInfo : n/i
-     *   .1 vtpVlanTable
-     *     .1 vtpVlanEntry
-     *      .1  vtpVlanIndex : n/a
-     *      .2  vtpVlanState
-     *      .3  vtpVlanType
-     *      .4  vtpVlanName
-     *      .5  vtpVlanMtu
-     *      .6  vtpVlanDot10Said
-     *      .7  vtpVlanRingNumber
-     *      .8  vtpVlanBridgeNumber
-     *      .9  vtpVlanStpType
-     *      .10 vtpVlanParentVlan
-     *      .11 vtpVlanTranslationalVlan1
-     *      .12 vtpVlanTranslationalVlan2
-     *      .13 vtpVlanBridgeType
-     *      .14 vtpVlanAreHopCount
-     *      .15 vtpVlanSteHopCount
-     *      .16 vtpVlanIsCRFBackup
-     *      .17 vtpVlanTypeExt
-     *      .18 vtpVlanIfIndex
-     *
-     * no aspect of this branch is implemented at this time.
-     **/   
+  /* NOTE: my environment is relatively simple, I can't test most of
+   * this MIB.  I've only implemented those parts that I can test.
+   *  - sep, 2007 rob
+   **/
 
 
+  /* .1.3.6.1.4.1.9.9
+   *   .46 ciscoVtpMIB
+   *     .1 vtpMIBObjects
+   *       .3 vlanInfo : n/i - no test avail.
+   *       .6 vlanTrunkPorts 
+   **/
 
-    /* .1.3.6.1.4.1.9.9.46.1.6 vlanTrunkPorts
-     *  .1 vlanTrunkPortTable
-     *    .1 vlanTrunkPortEntry
-     *      .1  vlanTrunkPortIfIndex  : n/a
-     *      .2  vlanTrunkPortManagementDomain  : n/i
-     *      .3  vlanTrunkPortEncapsulationType : n/i
-     *      .4  vlanTrunkPortVlansEnabled  
-     *      .5  vlanTrunkPortNativeVlan 
-     *      .6  vlanTrunkPortRowStatus  : n/i
-     *      .7  vlanTrunkPortInJoins    : n/i
-     *      .8  vlanTrunkPortOutJoins   : n/i
-     *      .9  vlanTrunkPortOldAdverts : n/i
-     *      .10 vlanTrunkPortVlansPruningEligible  : n/i
-     *      .11 vlanTrunkPortVlansXmitJoined       : n/i
-     *      .12 vlanTrunkPortVlansRcvJoined        : n/i
-     *      .13 vlanTrunkPortDynamicState 
-     *      .14 vlanTrunkPortDynamicStatus 
-     *      .15 vlanTrunkPortVtpEnabled  : n/i
-     *      .16 vlanTrunkPortEncapsulationOperType 
-     *      .17 vlanTrunkPortVlansEnabled2k  
-     *      .18 vlanTrunkPortVlansEnabled3k  
-     *      .19 vlanTrunkPortVlansEnabled4k  
-     *      .20 vtpVlansPruningEligible2k  : n/i 
-     *      .21 vtpVlansPruningEligible3k  : n/i 
-     *      .22 vtpVlansPruningEligible4k  : n/i
-     *      .23 vlanTrunkPortVlansXmitJoined2k  : n/i
-     *      .24 vlanTrunkPortVlansXmitJoined3k  : n/i
-     *      .25 vlanTrunkPortVlansXmitJoined4k  : n/i
-     *      .26 vlanTrunkPortVlansRcvJoined2k   : n/i
-     *      .27 vlanTrunkPortVlansRcvJoined3k   : n/i
-     *      .28 vlanTrunkPortVlansRcvJoined4k   : n/i
-     *      .29 vlanTrunkPortDot1qTunnel : n/i
-     *
-     * INDEX: "trunk port" - an ifIndex that is "trunking", an
-     *        interface used to connect a network device to another
-     *        network device (eg, router or switch) over which
-     *        communications are encapsulated in 802.1q or ISL.  if a
-     *        port (ifIndex) is not "trunking", none of these objects
-     *        will be relevant, though they might contain garbage
-     *        data.  test vlanTrunkPortDynamicStatus to find out if a
-     *        port is trunking.
-     *
-     **/
+  /* .1.3.6.1.4.1.9.9.46.1.3 vlanInfo : n/i
+   *   .1 vtpVlanTable
+   *     .1 vtpVlanEntry
+   *      .1  vtpVlanIndex : n/a
+   *      .2  vtpVlanState
+   *      .3  vtpVlanType
+   *      .4  vtpVlanName
+   *      .5  vtpVlanMtu
+   *      .6  vtpVlanDot10Said
+   *      .7  vtpVlanRingNumber
+   *      .8  vtpVlanBridgeNumber
+   *      .9  vtpVlanStpType
+   *      .10 vtpVlanParentVlan
+   *      .11 vtpVlanTranslationalVlan1
+   *      .12 vtpVlanTranslationalVlan2
+   *      .13 vtpVlanBridgeType
+   *      .14 vtpVlanAreHopCount
+   *      .15 vtpVlanSteHopCount
+   *      .16 vtpVlanIsCRFBackup
+   *      .17 vtpVlanTypeExt
+   *      .18 vtpVlanIfIndex
+   *
+   * no aspect of this branch is implemented at this time.
+   **/   
 
 
-    /* .1.3.6.1.4.1.9.9.46.1.6.1 vlanTrunkPortTable
-     *   .1 vlanTrunkPortEntry
-     *     .4  vlanTrunkPortVlansEnabled  
-     *
-     * INDEX: trunk port (ifIndex)
-     *
-     * a list of the vlans between 1 and 1023 that are enabled on a
-     * trunk port
-     *
-     * FUNCTION
-     * get_vlanTrunkPortVlansEnabled ($device_name, $community, &$device, 
-     *                                $if="")
-     *
-     * populates $device["interfaces"][$ifIndex]["vlansEnabled"]
-     *
-     * WARNING: call get_vlanTrunkPortEncapsulationOperType() first !
-     * the value of this object cannot be properly evaluated without
-     * knowing the vlanTrunkPortEncapsulationOperType for an
-     * interface.
-     **/   
+
+  /* .1.3.6.1.4.1.9.9.46.1.6 vlanTrunkPorts
+   *  .1 vlanTrunkPortTable
+   *    .1 vlanTrunkPortEntry
+   *      .1  vlanTrunkPortIfIndex  : n/a
+   *      .2  vlanTrunkPortManagementDomain  : n/i
+   *      .3  vlanTrunkPortEncapsulationType : n/i
+   *      .4  vlanTrunkPortVlansEnabled  
+   *      .5  vlanTrunkPortNativeVlan 
+   *      .6  vlanTrunkPortRowStatus  : n/i
+   *      .7  vlanTrunkPortInJoins    : n/i
+   *      .8  vlanTrunkPortOutJoins   : n/i
+   *      .9  vlanTrunkPortOldAdverts : n/i
+   *      .10 vlanTrunkPortVlansPruningEligible  : n/i
+   *      .11 vlanTrunkPortVlansXmitJoined       : n/i
+   *      .12 vlanTrunkPortVlansRcvJoined        : n/i
+   *      .13 vlanTrunkPortDynamicState 
+   *      .14 vlanTrunkPortDynamicStatus 
+   *      .15 vlanTrunkPortVtpEnabled  : n/i
+   *      .16 vlanTrunkPortEncapsulationOperType 
+   *      .17 vlanTrunkPortVlansEnabled2k  
+   *      .18 vlanTrunkPortVlansEnabled3k  
+   *      .19 vlanTrunkPortVlansEnabled4k  
+   *      .20 vtpVlansPruningEligible2k  : n/i 
+   *      .21 vtpVlansPruningEligible3k  : n/i 
+   *      .22 vtpVlansPruningEligible4k  : n/i
+   *      .23 vlanTrunkPortVlansXmitJoined2k  : n/i
+   *      .24 vlanTrunkPortVlansXmitJoined3k  : n/i
+   *      .25 vlanTrunkPortVlansXmitJoined4k  : n/i
+   *      .26 vlanTrunkPortVlansRcvJoined2k   : n/i
+   *      .27 vlanTrunkPortVlansRcvJoined3k   : n/i
+   *      .28 vlanTrunkPortVlansRcvJoined4k   : n/i
+   *      .29 vlanTrunkPortDot1qTunnel : n/i
+   *
+   * INDEX: "trunk port" - an ifIndex that is "trunking", an
+   *        interface used to connect a network device to another
+   *        network device (eg, router or switch) over which
+   *        communications are encapsulated in 802.1q or ISL.  if a
+   *        port (ifIndex) is not "trunking", none of these objects
+   *        will be relevant, though they might contain garbage
+   *        data.  test vlanTrunkPortDynamicStatus to find out if a
+   *        port is trunking.
+   *
+   **/
+
+
+  /* .1.3.6.1.4.1.9.9.46.1.6.1 vlanTrunkPortTable
+   *   .1 vlanTrunkPortEntry
+   *     .4  vlanTrunkPortVlansEnabled  
+   *
+   * INDEX: trunk port (ifIndex)
+   *
+   * a list of the vlans between 1 and 1023 that are enabled on a
+   * trunk port
+   *
+   * FUNCTION
+   * get_vlanTrunkPortVlansEnabled ($device_name, $community, &$device, 
+   *                                $if="")
+   *
+   * populates $device["interfaces"][$ifIndex]["vlansEnabled"]
+   *
+   * WARNING: call get_vlanTrunkPortEncapsulationOperType() first !
+   * the value of this object cannot be properly evaluated without
+   * knowing the vlanTrunkPortEncapsulationOperType for an
+   * interface.
+   **/   
 
 function get_vlanTrunkPortVlansEnabled ($device_name, 
                                         $community,

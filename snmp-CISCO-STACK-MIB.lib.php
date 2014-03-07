@@ -1,6 +1,16 @@
 <?php /* -*- c -*- */
 
-  /* quoth the mib: "This MIB provides configuration and runtime
+ /*
+   * Copyright (c) 2014 Robin Garner (robin@nukefest.org)
+   * All rights reserved.
+   *
+   * License: GPL v.3
+   */
+
+  /* v.1.0  2007  Implements CISCO-STACK-MIB
+   */
+
+  /* Quoth the mib: "This MIB provides configuration and runtime
    * status for -- chassis, modules, ports, etc. on the Catalyst
    * systems.
    **/

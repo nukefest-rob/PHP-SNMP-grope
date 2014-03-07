@@ -1,67 +1,76 @@
 <?php /* -*- c -*- */
 
-snmp_set_quick_print (TRUE);
 
-    /* this MIB manages VLAN membership assignments of non-trunk
-     * bridge ports and VQP/VMPS operations.  some objects are
-     * voice-specific and a lot of the mib is devoted to conformance.
-     * it provides a fairly simple and straight-forward way to get and
-     * set information about vlan/port relationships on a device
-     * PROVIDED that the port is NOT a "trunking port" (trunking ports
-     * are ones that run 802.1q/isl/etc encapsulation and cisco
-     * assumes those are being used to interconnect "network devices"
-     * like switches and routers; cisco-vtp-mib is more useful in that
-     * context).  note that ports can be configured as "multiVlan"
-     * which is membership in multiple vlans without any special
-     * encapsulation.  multi-vlan port config is recommended for use
-     * only on ports that uplink to routers or servers, allowing them
-     * to be present in multiple broadcast domains.
-     * 
-     * http://www.cisco.com/univercd/cc/td/doc/product/lan/c2900xl/29_35sa6/olhelp/vlanhelp.htm
-     *
-     * the "summary" table in this mib returns vlan numbers and the
-     * bit-field list of ports that are members of the vlan, sort of
-     * the inverse of the vtp-mib's functions which return ports and
-     * the list of vlans the ports are members of.  the non-summary
-     * "membership" table are used for configuring settings.
-     **/
+  /*
+   * Copyright (c) 2014 Robin Garner (robin@nukefest.org)
+   * All rights reserved.
+   *
+   * License: GPL v.3
+   */
 
-    /* .1.3.6.1.4.1.9.9 ciscoMgmt
-     *   .68 ciscoVlanMembershipMIB
-     *     .1 ciscoVlanMembershipMIBObjects
-     *       .1 vmVmps
-     *       .2 vmMembership
-     *       .3 vmStatistics
-     *       .4 vmStatus
-     *       .5 vmVoiceVlan : n/i
-     *     .2 vmNotifications : n/i
-     *     .3 vmMIBConformance : n/i
-     **/
+  /* v.1.0  2007  Implements CISCO-VLAN-MEMBERSHIP-MIB
+   */
+
+  /* This MIB manages VLAN membership assignments of non-trunk
+   * bridge ports and VQP/VMPS operations.  some objects are
+   * voice-specific and a lot of the mib is devoted to conformance.
+   * it provides a fairly simple and straight-forward way to get and
+   * set information about vlan/port relationships on a device
+   * PROVIDED that the port is NOT a "trunking port" (trunking ports
+   * are ones that run 802.1q/isl/etc encapsulation and cisco
+   * assumes those are being used to interconnect "network devices"
+   * like switches and routers; cisco-vtp-mib is more useful in that
+   * context).  note that ports can be configured as "multiVlan"
+   * which is membership in multiple vlans without any special
+   * encapsulation.  multi-vlan port config is recommended for use
+   * only on ports that uplink to routers or servers, allowing them
+   * to be present in multiple broadcast domains.
+   * 
+   * http://www.cisco.com/univercd/cc/td/doc/product/lan/c2900xl/29_35sa6/olhelp/vlanhelp.htm
+   *
+   * The "summary" table in this mib returns vlan numbers and the
+   * bit-field list of ports that are members of the vlan, sort of
+   * the inverse of the vtp-mib's functions which return ports and
+   * the list of vlans the ports are members of.  the non-summary
+   * "membership" table are used for configuring settings.
+   **/
+
+  /* .1.3.6.1.4.1.9.9 ciscoMgmt
+   *   .68 ciscoVlanMembershipMIB
+   *     .1 ciscoVlanMembershipMIBObjects
+   *       .1 vmVmps
+   *       .2 vmMembership
+   *       .3 vmStatistics
+   *       .4 vmStatus
+   *       .5 vmVoiceVlan : n/i
+   *     .2 vmNotifications : n/i
+   *     .3 vmMIBConformance : n/i
+   **/
 
 
-    /* .1.3.6.1.4.1.9.9.68.1.1 vmVmps
-     *   .1 vmVmpsVQPVersion
-     *   .2 vmVmpsRetries
-     *   .3 vmVmpsReconfirmInterval
-     *   .4 vmVmpsReconfirm
-     *   .5 vmVmpsReconfirmResult
-     *   .6 vmVmpsCurrent
-     *   .7 vmVmpsTable   : n/i
-     *     .1 vmVmpsEntry  
-     *       .1 vmVmpsIpAddress
-     *       .2 vmVmpsPrimary
-     *       .3 vmVmpsRowStatus
-     *
-     * objects related to vlan membership policy server (VMPS)
-     * operation and the vlan query protocol (VQP).
-     *
-     * FUNCTION
-     * get_vmVmps ($device_name, $community, &$device)
-     *
-     * calls get_vmVmpsVQPVersion(), get_vmVmpsRetries(),
-     * get_vmVmpsReconfirmInterval(), get_vmVmpsReconfirm(),
-     * get_vmVmpsReconfirmResult(), get_vmVmpsCurrent()
-     **/
+  /* .1.3.6.1.4.1.9.9.68.1.1 vmVmps
+   *   .1 vmVmpsVQPVersion
+   *   .2 vmVmpsRetries
+   *   .3 vmVmpsReconfirmInterval
+   *   .4 vmVmpsReconfirm
+   *   .5 vmVmpsReconfirmResult
+   *   .6 vmVmpsCurrent
+   *   .7 vmVmpsTable   : n/i
+   *     .1 vmVmpsEntry  
+   *       .1 vmVmpsIpAddress
+   *       .2 vmVmpsPrimary
+   *       .3 vmVmpsRowStatus
+   *
+   * objects related to vlan membership policy server (VMPS)
+   * operation and the vlan query protocol (VQP).
+   *
+   * FUNCTION
+   * get_vmVmps ($device_name, $community, &$device)
+   *
+   * calls get_vmVmpsVQPVersion(), get_vmVmpsRetries(),
+   * get_vmVmpsReconfirmInterval(), get_vmVmpsReconfirm(),
+   * get_vmVmpsReconfirmResult(), get_vmVmpsCurrent()
+   **/
 
 function get_vmVmps ($device_name, $community, &$device)
 {

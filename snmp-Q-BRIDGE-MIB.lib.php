@@ -1,75 +1,85 @@
 <?php /* -*- c -*- */
 
-    /* Q-BRIDGE-MIB
-     * .1.3.6.1.2.1 mib-2
-     *   .17 dot1dBridge
-     *     .7 qBridgeMIB
-     *       .1 qBridgeMIBObjects
-     *       .2 qBridgeConformance : n/i
-     *
-     * Q-BRIDGE mib is a branch of the dot1d mib.  tables are indexed
-     * by dot1d port (correlated to ifIndex via dot1dBasePortIfIndex).
-     * 
-     * Q-BRIDGE provides access to...
-     *
-     * a) general information about the version of 802.1q implemented by
-     *    the device and how it's been implemented (max # vlans, current #
-     *    of vlans active, gvrp status, etc) (dot1qBase)
-     *
-     * b) filtering database info & stats (dot1qTp 1)
-     *
-     * c) transparent forwarding database info (bridge table), indexed
-     *    per-vlan.  alternative to the dot1dTpFdbTable defined in the
-     *    original BRIDGE-MIB for 802.1d devices. (dot1qTp 2)
-     *
-     * d) multicast forwarding config per-port (dot1qTp 4)
-     *
-     * e) static filtering config per-port (dot1qStatic)
-     *
-     * f) information about which port are transmitting for each vlan
-     *    (by which, in conjunciton with dot1dBasePortTable, you can 
-     *    figure out which vlans are being piped out each ifIndex) and
-     *    wether they were configured dynamically or statically (dot1qVlan)
-     *
-     * g) per-port vlan and control configs (dot1qVlan 5)
-     *
-     * h) per-port vlan stats, regular and high-capacity (dot1qVlan 6 & 7)
-     *
-     * i) vlan learning constraints (dot1qVlan 8-10)
-     *
-     * j) descriptions of what objects are available on the device
-     *    (qBridgeConformance) 
-     *
-     * MIB SEZ: This table is >>an alternative<< to the
-     * dot1dTpFdbTable, so if a device implements 802.1Q, in theory
-     * the dot1dTp table can be skipped.
-     **/
+  /*
+   * Copyright (c) 2014 Robin Garner (robin@nukefest.org)
+   * All rights reserved.
+   *
+   * License: GPL v.3
+   */
+
+  /* v.1.0  2007  Implements RFC 2647
+   */
+
+  /* Q-BRIDGE-MIB
+   * .1.3.6.1.2.1 mib-2
+   *   .17 dot1dBridge
+   *     .7 qBridgeMIB
+   *       .1 qBridgeMIBObjects
+   *       .2 qBridgeConformance : n/i
+   *
+   * Q-BRIDGE mib is a branch of the dot1d mib.  Tables are indexed
+   * by dot1d port (correlated to ifIndex via dot1dBasePortIfIndex).
+   * 
+   * Q-BRIDGE provides access to...
+   *
+   * a) General information about the version of 802.1q implemented by
+   *    the device and how it's been implemented (max # vlans, current #
+   *    of vlans active, gvrp status, etc) (dot1qBase)
+   *
+   * b) Filtering database info & stats (dot1qTp 1)
+   *
+   * c) Transparent forwarding database info (bridge table), indexed
+   *    per-vlan.  alternative to the dot1dTpFdbTable defined in the
+   *    original BRIDGE-MIB for 802.1d devices. (dot1qTp 2)
+   *
+   * d) Multicast forwarding config per-port (dot1qTp 4)
+   *
+   * e) Static filtering config per-port (dot1qStatic)
+   *
+   * f) Information about which port are transmitting for each vlan
+   *    (by which, in conjunciton with dot1dBasePortTable, you can 
+   *    figure out which vlans are being piped out each ifIndex) and
+   *    wether they were configured dynamically or statically (dot1qVlan)
+   *
+   * g) Per-port vlan and control configs (dot1qVlan 5)
+   *
+   * h) Per-port vlan stats, regular and high-capacity (dot1qVlan 6 & 7)
+   *
+   * i) VLAN learning constraints (dot1qVlan 8-10)
+   *
+   * j) Descriptions of what objects are available on the device
+   *    (qBridgeConformance) 
+   *
+   * MIB says: This table is >>an alternative<< to the
+   * dot1dTpFdbTable, so if a device implements 802.1Q, in theory
+   * the dot1dTp table can be skipped.
+   **/
 
 
-    /* need to be able to run the get_dot1dBasePortTable function to 
-     * map "port" to ifIndex.
-     *
-     * THIS FUNC IS CRIBBED DIRECTLY FROM the bridge (dot1d) library
-     *
-     * .1.3.6.1.2.1.17.1.4 dot1dBasePortTable
-     *   .1 dot1dBasePortEntry
-     *     .2 dot1dBasePortIfIndex
-     *
-     * INDEX = dot1dBasePort
-     * 
-     * maps port# to ifIndex
-     *
-     * FUNCTION
-     * get_dot1dBasePortIfIndex ($device_name, $community, &$device)
-     * 
-     * populates 
-     *   $device["dot1dBridge"]["portTable"][$port]["dot1dBasePortIfIndex"]
-     * adds pointer $device["interfaces"][$ifIndex]["dot1dBridge"] => 
-     *     &$device["dot1dBridge"]["portTable"][$dot1dPort];
-     * populates $device["dot1dIfIndexMap"]
-     * populates $device["dot1dPortMap"]
-     *
-     **/
+  /* Need to be able to run the get_dot1dBasePortTable function to 
+   * map "port" to ifIndex.
+   *
+   * THIS FUNC IS CRIBBED DIRECTLY FROM the bridge (dot1d) library
+   *
+   * .1.3.6.1.2.1.17.1.4 dot1dBasePortTable
+   *   .1 dot1dBasePortEntry
+   *     .2 dot1dBasePortIfIndex
+   *
+   * INDEX = dot1dBasePort
+   * 
+   * maps port# to ifIndex
+   *
+   * FUNCTION
+   * get_dot1dBasePortIfIndex ($device_name, $community, &$device)
+   * 
+   * Populates 
+   *   $device["dot1dBridge"]["portTable"][$port]["dot1dBasePortIfIndex"]
+   * Adds pointer $device["interfaces"][$ifIndex]["dot1dBridge"] => 
+   *     &$device["dot1dBridge"]["portTable"][$dot1dPort];
+   * Populates $device["dot1dIfIndexMap"]
+   * Populates $device["dot1dPortMap"]
+   *
+   **/
 
 if (!function_exists('get_dot1dBasePortIfIndex'))
 {
@@ -79,7 +89,7 @@ if (!function_exists('get_dot1dBasePortIfIndex'))
          *
          * INDEX = dot1dBasePort
          * 
-         * construct a table to map bridge "ports" to ifIndices.
+         * Construct a table to map bridge "ports" to ifIndices.
          **/
     
     function get_dot1dBasePortIfIndex ($device_name, $community, &$device) 
@@ -102,7 +112,7 @@ if (!function_exists('get_dot1dBasePortIfIndex'))
                 /* BRIDGE-MIB::dot1dBasePortIfIndex.49 = INTEGER: 49
                  * BRIDGE-MIB::dot1dBasePortIfIndex.50 = INTEGER: 50
                  *
-                 * structure of $matches:
+                 * Structure of $matches:
                  * Array
                  * (
                  *     [0] => 49
@@ -129,7 +139,7 @@ if (!function_exists('get_dot1dBasePortIfIndex'))
      * FUNCTION
      * get_qBridgeMIB ($device_name, $community, &$device)
      *
-     * calls get_qBridgeMIBObjects()
+     * Calls get_qBridgeMIBObjects()
      **/
 
 function get_qBridgeMIB ($device_name, $community, &$device) 
@@ -147,12 +157,12 @@ function get_qBridgeMIB ($device_name, $community, &$device)
      * FUNCTION
      * get_qBridgeMIBObjects($device_name, $community, &$device)
      *
-     * calls get_dot1qBase(), get_dot1qTp(), get_dot1qVlan()
+     * Calls get_dot1qBase(), get_dot1qTp(), get_dot1qVlan()
      **/
 
 function get_qBridgeMIBObjects($device_name, $community, &$device)
 {
-        /* call get_dot1qVlanFdbId() first so vlan info can be
+        /* Call get_dot1qVlanFdbId() first so vlan info can be
          * included in the FdbTable
          **/
 
@@ -202,7 +212,7 @@ function get_dot1qBase ($device_name, $community, &$device)
              * Q-BRIDGE-MIB::dot1qNumVlans.0 = Gauge32: 6
              * Q-BRIDGE-MIB::dot1qGvrpStatus.0 = INTEGER: disabled(2)
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => dot1qVlanVersionNumber.0
@@ -305,7 +315,7 @@ function get_dot1qFdbTable ($device_name, $community, &$device)
              * Q-BRIDGE-MIB::dot1qFdbDynamicCount.202 = Counter32: 2
              * Q-BRIDGE-MIB::dot1qFdbDynamicCount.205 = Counter32: 30
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 202
@@ -392,7 +402,7 @@ function get_dot1qTpFdbTable ($device_name, $community, &$device)
              * address in DECIMAL format, the 7th-to-last segment of
              * the oid is the vlanID, and the value is vlanID
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 2.1.0.14.132.0.57.50
@@ -584,7 +594,7 @@ function get_dot1qVlanFdbId ($device_name, $community, &$device)
              * Q-BRIDGE-MIB::dot1qVlanFdbId.0.202 = INTEGER: 202
              * Q-BRIDGE-MIB::dot1qVlanFdbId.0.205 = INTEGER: 205
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 202
@@ -652,7 +662,7 @@ function get_dot1qVlanCurrentEgressPorts($device_name, $community, &$device)
              * FF FF FF 00 00 00 00 00 FF FF FE 00 00 00 00 00
              * 00 
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 251
@@ -753,7 +763,7 @@ function get_dot1qVlanCurrentUntaggedPorts($device_name, $community, &$device)
              * FF FF FF 00 00 00 00 00 FF FF FE 00 00 00 00 00
              * 00 
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 251
@@ -847,7 +857,7 @@ function get_dot1qVlanStatus ($device_name, $community, &$device)
             /* Q-BRIDGE-MIB::dot1qVlanStatus.0.1 = INTEGER: permanent(2)
              * Q-BRIDGE-MIB::dot1qVlanStatus.0.202 = INTEGER: permanent(2)
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 202
@@ -898,7 +908,7 @@ function get_dot1qVlanCreationTime ($device_name, $community, &$device)
              * Q-BRIDGE-MIB::dot1qVlanCreationTime.0.202 = 
              *   Timeticks: (0) 0:00:00.00
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 202
@@ -984,7 +994,7 @@ function get_dot1qPvid ($device_name, $community, &$device)
         preg_match('/[0-9]+$/i', $key, $matches);
         
             /* Q-BRIDGE-MIB::dot1qPvid.1 = INTEGER: 900
-             * structure of $matches:
+             * Structure of $matches:
              *
              * Array
              * (
@@ -1040,7 +1050,7 @@ function get_dot1qPortAcceptableFrameTypes ($device_name, $community, &$device)
             /* Q-BRIDGE-MIB::dot1qPortAcceptableFrameTypes.3 = 
              *   INTEGER: admitAll(1)
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 3
@@ -1096,7 +1106,7 @@ function get_dot1qPortIngressFiltering ($device_name, $community, &$device)
             /* Q-BRIDGE-MIB::dot1qPortIngressFiltering.1 = INTEGER: true(1)
              * Q-BRIDGE-MIB::dot1qPortIngressFiltering.2 = INTEGER: true(1)
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 3
@@ -1151,7 +1161,7 @@ function get_dot1qPortGvrpStatus ($device_name, $community, &$device)
         
             /* Q-BRIDGE-MIB::dot1qPortGvrpStatus.258 = INTEGER: disabled(2)
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 258
@@ -1212,7 +1222,7 @@ function get_dot1qPortGvrpFailedRegistrations ($device_name,
              * Q-BRIDGE-MIB::dot1qPortGvrpFailedRegistrations.398 = 
              *   Counter32: 0
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 397
@@ -1265,7 +1275,7 @@ function get_dot1qPortGvrpLastPduOrigin ($device_name, $community, &$device)
             /* Q-BRIDGE-MIB::dot1qPortGvrpLastPduOrigin.1 = STRING: 0:0:0:0:0:0
              * Q-BRIDGE-MIB::dot1qPortGvrpLastPduOrigin.2 = STRING: 0:0:0:0:0:0
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 397

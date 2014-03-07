@@ -1,5 +1,15 @@
 <?php /* -*- c -*- */
 
+  /*
+   * Copyright (c) 2014 Robin Garner (robin@nukefest.org)
+   * All rights reserved.
+   *
+   * License: GPL v.3
+   */
+
+  /* v.1.0  2007  Implements CISCO-PORT-SECURITY-MIB
+   */
+
     /* .1.3.6.1.4.1.9.9
      *   .315 ciscoPortSecurityMIB
      *     .0 ciscoPortSecurityMIBNotifs

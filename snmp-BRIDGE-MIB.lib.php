@@ -1,8 +1,18 @@
 <?php /* -*- c -*- */
 
+  /*
+   * Copyright (c) 2014 Robin Garner (robin@nukefest.org)
+   * All rights reserved.
+   *
+   * License: GPL v.3
+   */
+
+  /* v.1.0  2007  Implements RFC 1493
+   */
+
   /* BRIDGE-MIB
    *
-   * the bridge MIB is extracted from RFC 1493 (one of the better
+   * The bridge MIB is extracted from RFC 1493 (one of the better
    * written ones out there -ed).  the RFC seems to imply that a
    * single network device will implement a single bridge (sec.3.2.1),
    * probably a safe assumption in 1993.  in practice, some modern
@@ -12,8 +22,8 @@
    * functions, understand how your particular devices implement
    * dot1d.
    *
-   * NOTE: this library is ethernet specific.  at the time of its
-   * writing, that's all i have access to for the purposes of testing.
+   * NOTE: This library is ethernet specific.  At the time of its
+   * writing, that's all I have access to for the purposes of testing.
    * *sigh*.
    **/
 

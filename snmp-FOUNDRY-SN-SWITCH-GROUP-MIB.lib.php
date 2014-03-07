@@ -1,5 +1,16 @@
 <?php /* -*- c -*- */
 
+
+  /*
+   * Copyright (c) 2014 Robin Garner (robin@nukefest.org)
+   * All rights reserved.
+   *
+   * License: GPL v.3
+   */
+
+  /* v.1.0  2008  Foundry products
+   */
+
   /* .1.3.6.1.4.1 enterprises
    *   .1991 foundry
    *     .1 products
