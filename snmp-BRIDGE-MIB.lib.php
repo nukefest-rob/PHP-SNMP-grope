@@ -13,12 +13,12 @@
   /* BRIDGE-MIB
    *
    * The bridge MIB is extracted from RFC 1493 (one of the better
-   * written ones out there -ed).  the RFC seems to imply that a
+   * written ones out there -ed).  The RFC seems to imply that a
    * single network device will implement a single bridge (sec.3.2.1),
-   * probably a safe assumption in 1993.  in practice, some modern
+   * probably a safe assumption in 1993.  In practice, some modern
    * systems implement multiple bridges: certain cisco devices
    * configured for "trunking" implement one bridge per VLAN and each
-   * vlan must be interogated independently.  before using these
+   * vlan must be interogated independently.  Before using these
    * functions, understand how your particular devices implement
    * dot1d.
    *
@@ -37,11 +37,11 @@
    *     .7 qBridgeMIB : defined in Q-BRIDGE-MIB
    *
    * dot1d base and Stp bridge sequences are indexed by "port", not
-   * ifIndex.  on an ethernet (NOT x.25, etc), dot1dPorts have a
+   * ifIndex.  On an ethernet (NOT x.25, etc), dot1dPorts have a
    * one-to-one correlation to ifIndices and the mapping can be
-   * retrieved by getting the dot1dBasePortIfIndex object.  this
+   * retrieved by getting the dot1dBasePortIfIndex object.  This
    * applies for both for 802.1d and 802.1q bridge tables.
-   * transparent bridge forwarding tables are indexed by "forwarding
+   * Transparent bridge forwarding tables are indexed by "forwarding
    * database address", a MAC address.  FdbId can be corelated to port
    * via the dot1dTpFdbPort object.
    **/
@@ -64,7 +64,7 @@
    * FUNCTION
    * get_dot1dBaseBridgeAddress ($device_name, $community, &$device) 
    *
-   * sets $device["dot1dBridge"]["dot1dBaseBridgeAddress"]
+   * Sets $device["dot1dBridge"]["dot1dBaseBridgeAddress"]
    **/
 
 function get_dot1dBaseBridgeAddress ($device_name, $community, &$device) 
@@ -90,12 +90,12 @@ function get_dot1dBaseBridgeAddress ($device_name, $community, &$device)
     /* .1.3.6.1.2.1.17.1 dot1dBase
      *   .2 dot1dBaseNumPorts
      *
-     * number of ports controlled by this bridge
+     * Number of ports controlled by this bridge
      *
      * FUNCTION
      * get_dot1dBaseNumPorts ($device_name, $community, &$device) 
      *
-     * sets $device["dot1dBridge"]["dot1dBaseNumPorts"]
+     * Sets $device["dot1dBridge"]["dot1dBaseNumPorts"]
      **/
 
 function get_dot1dBaseNumPorts ($device_name, $community, &$device) 
@@ -125,12 +125,12 @@ function get_dot1dBaseNumPorts ($device_name, $community, &$device)
      * 3 == sourceroute-only
      * 4 == srt
      * 
-     * what type of bridging this bridge can perform.
+     * What type of bridging this bridge can perform.
      *
      * FUNCTION
      * get_dot1dBaseType ($device_name, $community, &$device) 
      *
-     * sets $device["dot1dBridge"]["dot1dBaseType"]
+     * Sets $device["dot1dBridge"]["dot1dBaseType"]
      **/
 
 function get_dot1dBaseType ($device_name, $community, &$device) 
@@ -163,14 +163,14 @@ function get_dot1dBaseType ($device_name, $community, &$device)
      * 
      * INDEX  { dot1dBasePort }
      * 
-     * generic information about each port in the bridge
+     * Generic information about each port in the bridge
      *
      * FUNCTION
      * get_dot1dBasePortTable ($device_name, $community, &$device)
      * 
-     * populates $device["dot1dBridge"]["portTable"][$port]
+     * Populates $device["dot1dBridge"]["portTable"][$port]
      *
-     * adds pointer $device["interfaces"][$ifIndex]["dot1dBridge"] =>
+     * Adds pointer $device["interfaces"][$ifIndex]["dot1dBridge"] =>
      *     $device["dot1dBridge"]["portTable"][$dot1dPort];
      **/
 
@@ -205,7 +205,7 @@ function get_dot1dBasePortTable ($device_name, $community, &$device)
              * BRIDGE-MIB::dot1dBasePortMtuExceededDiscards.49 = Counter32: 0
              * BRIDGE-MIB::dot1dBasePortMtuExceededDiscards.50 = Counter32: 0
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => dot1dBasePort.49
@@ -219,7 +219,7 @@ function get_dot1dBasePortTable ($device_name, $community, &$device)
         $device["dot1dBridge"]["portTable"][$matches[2]][$matches[1]] =
             $value;
         
-            /* add pointer from $device["interfaces"][$ifIndex] */
+            /* Add pointer from $device["interfaces"][$ifIndex] */
 
         if ($matches[1] === "dot1dBasePortIfIndex")
         {
@@ -236,20 +236,20 @@ function get_dot1dBasePortTable ($device_name, $community, &$device)
      *
      * INDEX  { dot1dBasePort }
      * 
-     * maps dot1dBasePort to ifIndex
+     * Maps dot1dBasePort to ifIndex
      *
      * FUNCTION
      * get_dot1dBasePortIfIndex ($device_name, $community, &$device)
      * 
-     * populates 
+     * Populates 
      *   $device["dot1dBridge"]["portTable"][$port]["dot1dBasePortIfIndex"]
-     * adds pointer $device["interfaces"][$ifIndex]["dot1dBridge"] =>
+     * Adds pointer $device["interfaces"][$ifIndex]["dot1dBridge"] =>
      *     $device["dot1dBridge"]["portTable"][$dot1dPort];
-     * populates $device["dot1dIfIndexMap"]
-     * populates $device["dot1dPortMap"]
+     * Populates $device["dot1dIfIndexMap"]
+     * Populates $device["dot1dPortMap"]
      *
      *
-     * this function is also declared in q-bridge library, so it must
+     * This function is also declared in q-bridge library, so it must
      * be wrapped in function_exists() in both places to avoid
      * redeclaration errors.
      **/
@@ -277,7 +277,7 @@ if (!function_exists('get_dot1dBasePortIfIndex'))
                 /* BRIDGE-MIB::dot1dBasePortIfIndex.49 = INTEGER: 49
                  * BRIDGE-MIB::dot1dBasePortIfIndex.50 = INTEGER: 50
                  *
-                 * structure of $matches:
+                 * Structure of $matches:
                  * Array
                  * (
                  *     [0] => 49
@@ -288,7 +288,7 @@ if (!function_exists('get_dot1dBasePortIfIndex'))
             
             $device["dot1dBridge"]["portTable"][$matches[0]]["dot1dBasePortIfIndex"] = $val;
             
-                /* add pointer to $device["interfaces"][$ifIndex] */
+                /* Add pointer to $device["interfaces"][$ifIndex] */
 
             $device["interfaces"][$val]["dot1dBridge"] = 
                 &$device["dot1dBridge"]["portTable"][$matches[0]];
@@ -327,14 +327,14 @@ if (!function_exists('get_dot1dBasePortIfIndex'))
      *         .9  dot1dStpPortDesignatedPort
      *         .10 dot1dStpPortForwardTransitions
      *  
-     * state of the spanning tree protocol on this bridge
+     * State of the spanning tree protocol on this bridge
      *
      * FUNCTION
      * get_dot1dStp ($device_name, $community, &$device) 
      *
-     * retrieves objects 1 through 14, calls get_dot1dStpPortTable()
+     * Retrieves objects 1 through 14, calls get_dot1dStpPortTable()
      *
-     * sets $device["dot1dBridge"]["Stp"]
+     * Sets $device["dot1dBridge"]["Stp"]
      **/
 
 
@@ -381,7 +381,7 @@ function get_dot1dStp ($device_name, $community, &$device)
         
                 /* BRIDGE-MIB::dot1dStpPriority.0 = INTEGER: 49153
                  *
-                 * structure of $matches:
+                 * Structure of $matches:
                  * Array
                  * (
                  *     [0] => dot1dStpPriority.0
@@ -394,7 +394,7 @@ function get_dot1dStp ($device_name, $community, &$device)
         }
     }
 
-        /* get object 15, dot1dStpPortState */
+        /* Get object 15, dot1dStpPortState */
 
     get_dot1dStpPortTable ($device_name, $community, $device);
 }
@@ -422,9 +422,9 @@ function get_dot1dStp ($device_name, $community, &$device)
      * FUNCTION
      * get_dot1dStpPortTable ($device_name, $community, &$device)
      *
-     * populates $device["dot1dBridge"]["portTable"][$stp_oid]
+     * Populates $device["dot1dBridge"]["portTable"][$stp_oid]
      *
-     * if get_dot1dBasePortIfIndex() was called previously, a pointer
+     * If get_dot1dBasePortIfIndex() was called previously, a pointer
      * exists: $device["interfaces"][$ifIndex]["dot1dBridge"] =>
      * $device["dot1dBridge"]["portTable"][$dot1dPort];
      **/
@@ -446,7 +446,7 @@ function get_dot1dStpPortTable ($device_name, $community, &$device)
         
             /* BRIDGE-MIB::dot1dStpPortState.4 = INTEGER: disabled(1)
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => dot1dStpPort.49
@@ -472,10 +472,10 @@ function get_dot1dStpPortTable ($device_name, $community, &$device)
      * FUNCTION
      * get_dot1dStpPortTable ($device_name, $community, &$device)
      *
-     * populates 
-     * $device["dot1dBridge"]["portTable"][$port]["dot1dStpPortState"]
+     * Populates 
+     *   $device["dot1dBridge"]["portTable"][$port]["dot1dStpPortState"]
      *
-     * if get_dot1dBasePortIfIndex() was called previously, a pointer
+     * If get_dot1dBasePortIfIndex() was called previously, a pointer
      * exists: $device["interfaces"][$ifIndex]["dot1dBridge"] =>
      * $device["dot1dBridge"]["portTable"][$dot1dPort];
      **/
@@ -497,7 +497,7 @@ function get_dot1dStpPortState ($device_name, $community, &$device)
         
             /* BRIDGE-MIB::dot1dStpPortState.4 = INTEGER: disabled(1)
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 4
@@ -524,10 +524,10 @@ function get_dot1dStpPortState ($device_name, $community, &$device)
      * FUNCTION
      * get_dot1dStpPortEnable ($device_name, $community, &$device)
      *
-     * populates 
-     * $device["dot1dBridge"]["portTable"][$port]["dot1dStpPortEnable"]
+     * Populates 
+     *   $device["dot1dBridge"]["portTable"][$port]["dot1dStpPortEnable"]
      *
-     * if get_dot1dBasePortIfIndex() was called previously, a pointer
+     * If get_dot1dBasePortIfIndex() was called previously, a pointer
      * exists: $device["interfaces"][$ifIndex]["dot1dBridge"] =>
      * $device["dot1dBridge"]["portTable"][$dot1dPort];
      **/
@@ -549,7 +549,7 @@ function get_dot1dStpPortEnable ($device_name, $community, &$device)
         
             /* BRIDGE-MIB::dot1dStpPortEnable.921 = INTEGER: enabled(1)
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
              *     [0] => 921
@@ -575,9 +575,9 @@ function get_dot1dStpPortEnable ($device_name, $community, &$device)
      * FUNCTION
      * get_dot1dTp ($device_name, $community, &$device)
      *
-     * retrieves objects 1 and 2, calls get_dot1dTpFdbTable()
+     * Retrieves objects 1 and 2, calls get_dot1dTpFdbTable()
      * 
-     * populates $device["dot1dBridge"]["Tp"]
+     * Populates $device["dot1dBridge"]["Tp"]
      **/
 
 function get_dot1dTp ($device_name, $community, &$device) 
@@ -588,7 +588,7 @@ function get_dot1dTp ($device_name, $community, &$device)
     
     $base_oid  = ".1.3.6.1.2.1.17.4";
 
-        /* get the first 2 objects; they're both scalars:
+        /* Get the first 2 objects; they're both scalars:
          *
          * BRIDGE-MIB::dot1dTpLearnedEntryDiscards.0 = Counter32: 608
          * BRIDGE-MIB::dot1dTpAgingTime.0 = INTEGER: 300
@@ -608,7 +608,7 @@ function get_dot1dTp ($device_name, $community, &$device)
         
                 /* BRIDGE-MIB::dot1dTpAgingTime.0 = INTEGER: 300
                  *
-                 * structure of $matches:
+                 * Structure of $matches:
                  * Array
                  * (
                  *     [0] => dot1dTpAgingTime.0
@@ -621,7 +621,7 @@ function get_dot1dTp ($device_name, $community, &$device)
         }
     }
 
-        /* get object 3, dot1dTpFdbTable */
+        /* Get object 3, dot1dTpFdbTable */
 
     get_dot1dTpFdbTable ($device_name, $community, $device);
 }
@@ -638,6 +638,7 @@ function get_dot1dTp ($device_name, $community, &$device)
      * 
      * snmp_set_valueretrieval(SNMP_VALUE_PLAIN) is NOT USED because
      * some of the values returned are type Hex-STRING.
+     *
      * snmp_set_valueretrieval(SNMP_VALUE_LIBRARY) is used in
      * conjunction with snmp_set_quick_print(TRUE) so the value's type
      * isn't reported with the value:
@@ -652,7 +653,7 @@ function get_dot1dTp ($device_name, $community, &$device)
      *
      * (reset snmp_set_oid_numeric_print(FALSE) after the retrieval!)
      * 
-     * the last 6 dotted segments of the oid are the mac address in
+     * The last 6 dotted segments of the oid are the mac address in
      * DECIMAL format (MAC values are reported in HEX format).
      *
      * FUNCTION
@@ -660,7 +661,7 @@ function get_dot1dTp ($device_name, $community, &$device)
      *
      * populates $device["dot1dBridge"]["portTable"][$port]["TpFdbTable"]
      *
-     * if get_dot1dBasePortIfIndex() was called previously, a pointer
+     * If get_dot1dBasePortIfIndex() was called previously, a pointer
      * exists: $device["interfaces"][$ifIndex]["dot1dBridge"] =>
      * $device["dot1dBridge"]["portTable"][$dot1dPort];
      **/
@@ -691,25 +692,27 @@ function get_dot1dTpFdbTable ($device_name, $community, &$device)
              * .1.3.6.1.2.1.17.4.3.1.1.0.6.91.119.104.210 == 
              *    "00 06 5B 77 68 D2 "
              *
-             * structure of $matches:
+             * Structure of $matches:
              * Array
              * (
-             *     [0] => 1.0.0.192.18.219.248
+             *     [0] => 1.0.6.91.119.104.210
              *     [1] => 1
-             *     [2] => .248
+             *     [2] => .210
              * )
              *
-             * $matches[0] is the decimal-format MAC address used as
-             * the table index plus the object id (prepended).
-             * substr_replace($matches[0], "", 0, 2) strips the
-             * leading object id and '.' off to leave just the MAC.
+             * $matches[0] is a 7-segment string that represents the
+             * decimal-format MAC address with the object id prepended:
+             *   <oid>.<byte1>.<byte2>.<byte3>,<byte4>,<byte5>.<bytes6>
              *
-             * $matches[1] == the object: 
+             * substr_replace($matches[0], "", 0, 2) strips the
+             * OID segment and '.' off to leave just the MAC.
+             *
+             * $matches[1] == the OID: 
              *    1 - dot1dTpFdbAddress
              *    2 - dot1dTpFdbPort
              *    3 - dot1dTpFdbStatus
              *
-             * $matches[2] is garbage.
+             * $matches[2] is uninteresting.
              **/
 
         $idx = substr_replace($matches[0], "", 0, 2);
@@ -727,7 +730,7 @@ function get_dot1dTpFdbTable ($device_name, $community, &$device)
         return;
     }
     
-        /* transpose $FdbTable into $device["dot1dBridge"] and
+        /* Transpose $FdbTable into $device["dot1dBridge"] and
          * add pointers into $device["interfaces"]
          **/
 
@@ -737,12 +740,9 @@ function get_dot1dTpFdbTable ($device_name, $community, &$device)
 
     foreach ($FdbTable as $entry)
     {
-            /* accomodate incomplete tables.  it happens. */
+            /* Accomodate incomplete tables.  It happens. */
 
-        if (!isset($entry["dot1dTpFdbPort"]))
-        {
-            continue;
-        }
+        if (!isset($entry["dot1dTpFdbPort"])) {  continue; }
         
             
         $port = &$entry["dot1dTpFdbPort"];  // readability
