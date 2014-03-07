@@ -11,6 +11,8 @@
    * v.1.0  2004  Implements RFC3418
    */
 
+  /** system group **/
+
   /* 1.3.6.1.2.1 mib-2
    *   .1 system
    *     .1 sysDescr
@@ -44,10 +46,10 @@ function get_system ($device_name, $community, &$device)
 
     for($i=4; $i <= 8; $i++)
     {
-        $oid = $base_oid.".$i";
+        $oid = $base_oid.".$i.0";
         
         $data = @snmprealwalk ($device_name, $community, $oid);
-    
+        
         if (empty($data))  {  return;  }
     
         foreach ($data as $key=>$value) 
@@ -344,6 +346,954 @@ function get_sysORTable ($device_name, $community, &$device)
 
         $device["system"]["sysORTable"][$matches[2]][$matches[1]] = $value;
     }
+}
+
+    /** SNMP Group **/
+
+    /* 1.3.6.1.2.1 mib-2
+     *   .11 snmp
+     *     .1  snmpInPkts
+     *     .2  snmpOutPkts (obsolete)
+     *     .3  snmpInBadVersions
+     *     .4  snmpInBadCommunityNames
+     *     .5  snmpInBadCommunityUses
+     *     .6  snmpInASNParseErrs
+     *     .7  -- not used --
+     *     .8  snmpInTooBigs (obsolete)
+     *     .9  snmpInNoSuchNames (obsolete)
+     *     .10 snmpInBadValues (obsolete)
+     *     .11 snmpInReadOnlys (obsolete)
+     *     .12 snmpInGenErrs (obsolete)
+     *     .13 snmpInTotalReqVars (obsolete)
+     *     .14 snmpInTotalSetVars (obsolete)
+     *     .15 snmpInGetRequests (obsolete)
+     *     .16 snmpInGetNexts (obsolete)
+     *     .17 snmpInSetRequests (obsolete)
+     *     .18 snmpInGetResponses (obsolete)
+     *     .19 snmpInTraps (obsolete)
+     *     .20 snmpOutTooBigs (obsolete)
+     *     .21 snmpOutNoSuchNames (obsolete)
+     *     .22 snmpOutBadValues (obsolete)
+     *     .23 -- not used -- (obsolete)
+     *     .24 snmpOutGenErrs (obsolete)
+     *     .25 snmpOutGetRequests (obsolete)
+     *     .26 snmpOutGetNexts (obsolete)
+     *     .27 snmpOutSetRequests (obsolete)
+     *     .28 snmpOutGetResponses (obsolete)
+     *     .29 snmpOutTraps (obsolete)
+     *     .30 snmpEnableAuthenTraps
+     *     .31 snmpSilentDrops
+     *     .32 snmpProxyDrops
+     *
+     * FUNCTION
+     * get_snmp ($device_name, $community, &$device)
+     * 
+     * Retrieves the SNMP group.  The MIB file defines OIDs 7 through 29
+     * as "obsolete", but a lot of agents manage them anyway.  All
+     * objects are scalars.
+     *
+     * populates $device["snmp"][$object]
+     **/
+
+function get_snmp ($device_name, $community, &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11";
+
+    $data = @snmprealwalk ($device_name, $community, $oid);
+    
+    if (empty($data))  {  return;  }
+    
+    foreach ($data as $key=>$value) 
+    {
+        preg_match('/([A-Z0-9]+)\.([0-9]+)$/i', $key, $matches);
+        
+                /* SNMPv2-MIB::snmpInPkts.0 = Counter32: 1560
+                 *
+                 * Structure of $matches:
+                 * Array
+                 * (
+                 *    [0] => snmpInPkts.0
+                 *    [1] => snmpInPkts
+                 *    [2] => 0
+                 * )
+                 *
+                 * $matches[1] is the oid, $matches[2] is the instance_id.
+                 **/
+            
+        $device["snmp"][$matches[1]] = $value;
+    }
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .1  snmpInPkts
+     *
+     * FUNCTION
+     * get_snmpInPkts ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInPkts"]
+     **/
+
+function get_snmpInPkts ($device_name,  
+                         $community, 
+                         &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.1.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInPkts.0 = Counter32: 1560 */
+    
+    $device["snmp"]["snmpInPkts"] = $data;
+}
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .2  snmpOutPkts (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutPkts ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutPkts"]
+     **/
+
+function get_snmpOutPkts ($device_name,  
+                          $community, 
+                          &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.2.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutPkts.0 = Counter32: 1561 */
+    
+    $device["snmp"]["snmpOutPkts"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .3  snmpInBadVersions
+     *
+     * FUNCTION
+     * get_snmpInBadVersions ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInBadVersions"]
+     **/
+
+function get_snmpInBadVersions ($device_name,  
+                                $community, 
+                                &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.3.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInBadVersions.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInBadVersions"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .4  snmpInBadCommunityNames
+     *
+     * FUNCTION
+     * get_snmpInBadCommunityNames ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInBadCommunityNames"]
+     **/
+
+function get_snmpInBadCommunityNames ($device_name,  
+                                      $community, 
+                                      &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.4.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInBadCommunityNames.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInBadCommunityNames"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .5  snmpInBadCommunityUses
+     *
+     * FUNCTION
+     * get_snmpInBadCommunityUses ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInBadCommunityUses"]
+     **/
+
+function get_snmpInBadCommunityUses ($device_name,  
+                                     $community, 
+                                     &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.5.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInBadCommunityUses.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInBadCommunityUses"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .6  snmpInASNParseErrs
+     *
+     * FUNCTION
+     * get_snmpInASNParseErrs ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInASNParseErrs"]
+     **/
+
+function get_snmpInASNParseErrs ($device_name,  
+                                 $community, 
+                                 &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.6.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInASNParseErrs.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInASNParseErrs"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .8  snmpInTooBigs (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInTooBigs ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInTooBigs"]
+     **/
+
+function get_snmpInTooBigs ($device_name,  
+                            $community, 
+                            &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.8.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInTooBigs.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInTooBigs"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .9  snmpInNoSuchNames (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInNoSuchNames ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInNoSuchNames"]
+     **/
+
+function get_snmpInNoSuchNames ($device_name,  
+                                $community, 
+                                &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.9.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInNoSuchNames.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInNoSuchNames"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .10 snmpInBadValues (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInBadValues ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInBadValues"]
+     **/
+
+function get_snmpInBadValues ($device_name,  
+                              $community, 
+                              &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.10.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInBadValues.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInBadValues"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .11 snmpInReadOnlys (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInReadOnlys ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInReadOnlys"]
+     **/
+
+function get_snmpInReadOnlys ($device_name,  
+                              $community, 
+                              &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.11.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInReadOnlys.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInReadOnlys"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .12 snmpInGenErrs (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInGenErrs ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInGenErrs"]
+     **/
+
+function get_snmpInGenErrs ($device_name,  
+                            $community, 
+                            &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.12.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInGenErrs.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInGenErrs"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .13 snmpInTotalReqVars (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInTotalReqVars ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInTotalReqVars"]
+     **/
+
+function get_snmpInTotalReqVars ($device_name,  
+                                 $community, 
+                                 &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.13.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInTotalReqVars.0 = Counter32: 1553 */
+    
+    $device["snmp"]["snmpInTotalReqVars"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .14 snmpInTotalSetVars (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInTotalSetVars ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInTotalSetVars"]
+     **/
+
+function get_snmpInTotalSetVars ($device_name,  
+                                 $community, 
+                                 &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.14.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInTotalSetVars.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInTotalSetVars"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .15 snmpInGetRequests (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInGetRequests ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInGetRequests"]
+     **/
+
+function get_snmpInGetRequests ($device_name,  
+                                $community, 
+                                &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.15.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInGetRequests.0 = Counter32: 20 */
+    
+    $device["snmp"]["snmpInGetRequests"] = $data;
+}
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .16 snmpInGetNexts (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInGetNexts ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInGetNexts"]
+     **/
+
+function get_snmpInGetNexts ($device_name,  
+                             $community, 
+                             &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.16.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInGetNexts.0 = Counter32: 1554 */
+    
+    $device["snmp"]["snmpInGetNexts"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .17 snmpInSetRequests (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInSetRequests ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInSetRequests"]
+     **/
+
+function get_snmpInSetRequests ($device_name,  
+                                $community, 
+                                &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.17.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInSetRequests.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInSetRequests"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .18 snmpInGetResponses (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInGetResponses ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInGetResponses"]
+     **/
+
+function get_snmpInGetResponses ($device_name,  
+                                 $community, 
+                                 &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.18.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInGetResponses.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInGetResponses"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .19 snmpInTraps (obsolete)
+     *
+     * FUNCTION
+     * get_snmpInTraps ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpInTraps"]
+     **/
+
+function get_snmpInTraps ($device_name,  
+                          $community, 
+                          &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.19.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpInTraps.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpInTraps"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .20 snmpOutTooBigs (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutTooBigs ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutTooBigs"]
+     **/
+
+function get_snmpOutTooBigs ($device_name,  
+                             $community, 
+                             &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.20.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutTooBigs.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpOutTooBigs"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .21 snmpOutNoSuchNames (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutNoSuchNames ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutNoSuchNames"]
+     **/
+
+function get_snmpOutNoSuchNames ($device_name,  
+                                 $community, 
+                                 &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.21.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutNoSuchNames.0 = Counter32: 17 */
+    
+    $device["snmp"]["snmpOutNoSuchNames"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .22 snmpOutBadValues (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutBadValues ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutBadValues"]
+     **/
+
+function get_snmpOutBadValues ($device_name,  
+                               $community, 
+                               &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.22.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutBadValues.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpOutBadValues"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .24 snmpOutGenErrs (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutGenErrs ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutGenErrs"]
+     **/
+
+function get_snmpOutGenErrs ($device_name,  
+                             $community, 
+                             &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.24.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutGenErrs.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpOutGenErrs"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .25 snmpOutGetRequests (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutGetRequests ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutGetRequests"]
+     **/
+
+function get_snmpOutGetRequests ($device_name,  
+                                 $community, 
+                                 &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.25.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutGetRequests.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpOutGetRequests"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .26 snmpOutGetNexts (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutGetNexts ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutGetNexts"]
+     **/
+
+function get_snmpOutGetNexts ($device_name,  
+                              $community, 
+                              &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.26.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutGetNexts.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpOutGetNexts"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .27 snmpOutSetRequests (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutSetRequests ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutSetRequests"]
+     **/
+
+function get_snmpOutSetRequests ($device_name,  
+                                 $community, 
+                                 &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.27.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutSetRequests.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpOutSetRequests"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .28 snmpOutGetResponses (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutGetResponses ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutGetResponses"]
+     **/
+
+function get_snmpOutGetResponses ($device_name,  
+                                  $community, 
+                                  &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.28.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutGetResponses.0 = Counter32: 1584 */
+    
+    $device["snmp"]["snmpOutGetResponses"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .29 snmpOutTraps (obsolete)
+     *
+     * FUNCTION
+     * get_snmpOutTraps ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpOutTraps"]
+     **/
+
+function get_snmpOutTraps ($device_name,  
+                           $community, 
+                           &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.29.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpOutTraps.0 = Counter32: 1 */
+    
+    $device["snmp"]["snmpOutTraps"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .30 snmpEnableAuthenTraps
+     *
+     * FUNCTION
+     * get_snmpEnableAuthenTraps ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpEnableAuthenTraps"]
+     **/
+
+function get_snmpEnableAuthenTraps ($device_name,  
+                                    $community, 
+                                    &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.30.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpEnableAuthenTraps.0 = INTEGER: disabled(2) */
+    
+    $device["snmp"]["snmpEnableAuthenTraps"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .31 snmpSilentDrops
+     *
+     * FUNCTION
+     * get_snmpSilentDrops ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpSilentDrops"]
+     **/
+
+function get_snmpSilentDrops ($device_name,  
+                              $community, 
+                              &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.31.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpSilentDrops.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpSilentDrops"] = $data;
+}
+
+
+    /* 1.3.6.1.2.1.11 snmp
+     *   .32 snmpProxyDrops
+     *
+     * FUNCTION
+     * get_snmpProxyDrops ($device_name, $community, &$device)
+     * 
+     * Sets $device["snmp"]["snmpProxyDrops"]
+     **/
+
+function get_snmpProxyDrops ($device_name,  
+                             $community, 
+                             &$device)
+{
+    snmp_set_valueretrieval(SNMP_VALUE_LIBRARY);
+    snmp_set_oid_output_format(SNMP_OID_OUTPUT_FULL);
+    snmp_set_quick_print(TRUE);
+
+    $oid  = ".1.3.6.1.2.1.11.32.0";
+    
+    $data = @snmpget ($device_name, $community, $oid);
+
+    if (empty($data))  {  return;  }
+
+        /* SNMPv2-MIB::snmpProxyDrops.0 = Counter32: 0 */
+    
+    $device["snmp"]["snmpProxyDrops"] = $data;
 }
 
 
